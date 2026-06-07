@@ -1,6 +1,6 @@
 # 🚀 TaskOps — Enterprise Task Management System
 
-![TaskOps Showcase](./Screenshot%202026-06-06%20225733.png)
+
 
 **TaskOps** is a comprehensive, multi-tenant enterprise task management system designed to streamline operational workflows, boost productivity, and provide real-time visibility into organizational tasks.
 
