@@ -1,187 +1,93 @@
-# TaskOps — Task Management System
+# 🚀 TaskOps — Enterprise Task Management System
 
-Task management system for **Ajay Chemicals**, built as a **React (Vite) SPA** talking to a
-**CodeIgniter 4 REST API** backed by **MySQL (MySQLi driver)**.
+![TaskOps Showcase](./Screenshot%202026-06-06%20225733.png)
 
-```
-taskm/
-├─ frontend/              React + Vite SPA (this folder)
-└─ (backend lives in WAMP) → C:\wamp64\www\taskops   CodeIgniter 4 API
-```
+**TaskOps** is a comprehensive, multi-tenant enterprise task management system designed to streamline operational workflows, boost productivity, and provide real-time visibility into organizational tasks.
 
-The original design reference is `task-management.html`.
+Built with a modern tech stack focusing on high performance, robust security, and an exceptional user experience, TaskOps is engineered to meet the demanding requirements of modern businesses.
 
 ---
 
-## Multi-tenancy & Authentication
+## 🛠 Tech Stack
 
-> **Note on Supabase:** Supabase Auth + Row Level Security require PostgreSQL. Per the
-> requirement to stay on **MySQL with no extra database**, auth is implemented in
-> CodeIgniter 4 (JWT) and tenant isolation is enforced in the **application layer**
-> instead of Postgres RLS. A tenant-scoped base model (`TenantModel`) automatically
-> constrains every read/write to the logged-in user's `company_id`; platform admins bypass it.
+### Frontend
+- **Framework:** React (Bootstrapped with Vite for lightning-fast HMR)
+- **Architecture:** Single Page Application (SPA)
+- **Styling:** Custom responsive CSS architecture 
+- **State Management:** React Context API + Custom Hooks
 
-**Model:**
-- `companies` — tenants. `users` — auth identities (`company_id`, `role_id` nullable, `is_platform_admin`).
-- Every business table (`tasks`, `comments`, `activity_log`, `departments`) carries `company_id`.
-- After login the JWT carries `company_id` + `role_id`; the React `AuthContext` stores the user.
-- **Platform Admin console** (only for `is_platform_admin` users) to create/manage companies
-  and create each company's first admin user.
-- Roles are intentionally **not hardcoded yet** — `role_id` stays nullable (roles come next).
-
-### Seeded accounts
-
-| Role                  | Email                        | Password       |
-|-----------------------|------------------------------|----------------|
-| **Platform super admin** | `dipakbarman080@gmail.com`   | `Admin@12345`  |
-| Company admin (Ajay Chemicals) | `admin@ajaychemicals.com` | `Company@123`  |
-
-> ⚠️ Change these passwords after first login. The platform admin lands on the Platform
-> Console; the company admin lands on the Task Dashboard scoped to its company.
-
-## Dynamic Roles & Permissions
-
-Per-company RBAC, enforced in the application layer (same MySQL/CI4 approach as tenancy).
-
-**Model:**
-- `roles` (per company), `pages` (global master list of permission-controlled screens),
-  `role_permissions` (per company/role/page with `can_view`/`can_create`/`can_edit`/`can_close`).
-- Each user has exactly one `role_id`. On login, `/api/auth/login` + `/api/auth/me` return the
-  user's `role` and a `permissions` array (every page with its flags).
-- `PermissionService` answers `can(page, action)` and is called by **every** task/role/user
-  endpoint — the UI is never trusted. Platform admins bypass.
-
-**Frontend uses the permission map to:**
-- build the **sidebar dynamically** (only pages with `can_view`, grouped by `module_group`);
-- show/hide **New Task / Edit / comment / Complete-Reject** by `can_create`/`can_edit`/`can_close`;
-- gate the **Role Management** and **User Management** screens.
-
-**Screens (Company Admin):**
-- **Role Management** — create/activate roles + a **Permission Matrix** (pages × View/Create/Edit/Close).
-- **User Management** — create users and assign exactly one role.
-
-**Auto-provisioning:** creating a company auto-creates a **Company Admin** system role with full
-permissions on all pages; the company's first admin user is assigned that role.
-
-**Pages seeded:** Dashboard, Tasks, Create Task, Masters-Divisions, Masters-Departments,
-Masters-Sections, Masters-Designations, Masters-Plants, Masters-PlantUnits, Masters-TaskConfig,
-Role Management, User Management, Reports, Wall Board.
-
-### Role/permission endpoints
-| Method | Path | Gated by |
-|--------|------|----------|
-| GET/POST | `/api/roles` | Role Management view/create |
-| PUT | `/api/roles/{id}` | Role Management edit |
-| GET/PUT | `/api/roles/{id}/permissions` | Role Management view/edit (the matrix) |
-| GET | `/api/pages` | Role Management view |
-| GET | `/api/users` | any company member (assignee dropdown) |
-| POST/PUT | `/api/users`, `/api/users/{id}` | User Management create/edit |
-
-### Auth endpoints
-| Method | Path | Notes |
-|--------|------|-------|
-| POST | `/api/auth/login` | public — returns `{ token, user }` |
-| GET  | `/api/auth/me` | current user (Bearer token) |
-| POST | `/api/auth/logout` | client discards token |
-| GET/POST | `/api/admin/companies` | platform admin only |
-| PUT  | `/api/admin/companies/{id}` | platform admin only |
-| POST | `/api/admin/companies/{id}/admin-user` | create company's first admin |
-
-All `/api/*` routes except `login` require a valid Bearer JWT (`auth` filter);
-`/api/admin/*` additionally requires `is_platform_admin` (`platformadmin` filter).
+### Backend
+- **Framework:** CodeIgniter 4 (PHP 8.2+)
+- **Architecture:** RESTful API
+- **Database:** MySQL (MySQLi driver)
+- **Authentication:** Custom JWT-based stateless authentication
 
 ---
 
-## Prerequisites
+## ✨ Key Features
 
-- Node.js (tested on v24) + npm
-- WAMP with MySQL 9.x and PHP 8.3 (CLI). CI4 requires **PHP 8.2+**.
-- Composer
-
-> ⚠️ **WAMP Apache is on PHP 7.4**, but CodeIgniter 4 needs PHP 8.2+. So in development the
-> API is served with the PHP 8.3 CLI via `php spark serve` (see below). To run it under
-> Apache instead, switch Apache's PHP version to 8.2+ from the WAMP tray icon.
+- **Multi-Tenancy Architecture:** Strict tenant isolation at the application level ensuring data privacy across different organizations.
+- **Dynamic Role-Based Access Control (RBAC):** Flexible, per-company roles with granular permissions (View, Create, Edit, Close) controlled via a dynamic Permission Matrix.
+- **Real-Time Dashboard:** Live statistical insights including urgent/overdue tasks, daily completions, and average resolution times.
+- **Advanced Task Management:** Status pills, priority grouping, due-date color coding, and global search filters.
+- **TV Display Mode:** A full-screen live board with a scrolling ticker, designed for office wall-mounted displays.
+- **Audit Trails:** Comprehensive activity logging and timeline visualization for every task.
+- **Platform Admin Console:** Centralized management for platform administrators to provision and govern tenants.
 
 ---
 
-## 1. Database
+## 🔒 Security & Architecture Highlights
 
-Already created and seeded, but to recreate from scratch:
+- **Stateless JWT Auth:** Secure, scalable API authentication without relying on database sessions.
+- **Centralized Permission Service:** UI is never trusted. Every endpoint strictly validates the user's role and tenant scope (`company_id`).
+- **Resilient Frontend:** The React app gracefully falls back to bundled mock data if the backend API is unreachable, ensuring a seamless demo experience.
 
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- **Node.js** (v24+) & npm
+- **PHP** (8.2+)
+- **MySQL** (9.x)
+- **Composer**
+
+### 1. Database Setup
 ```sql
-CREATE DATABASE IF NOT EXISTS taskops_db
-  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS taskops_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+Navigate to your API directory:
+```bash
+php spark migrate          # Run database migrations
+php spark db:seed TaskOpsSeeder   # Seed initial demo data
 ```
 
-Then from `C:\wamp64\www\taskops`:
-
+### 2. Backend API Setup (CodeIgniter 4)
+Navigate to your API directory and start the local development server:
 ```bash
-php spark migrate          # creates departments, users, tasks, comments, activity_log
-php spark db:seed TaskOpsSeeder   # loads sample tasks matching the design
-```
-
-DB connection is configured in `C:\wamp64\www\taskops\.env` (host `localhost`, user `root`,
-empty password, driver `MySQLi`).
-
----
-
-## 2. Backend API (CodeIgniter 4)
-
-```bash
-cd C:\wamp64\www\taskops
 php spark serve --port 8080
 ```
+*The API will be available at: **http://localhost:8080/api***
 
-API base: **http://localhost:8080/api**
-
-### Endpoints
-
-| Method | Path                          | Description                         |
-|--------|-------------------------------|-------------------------------------|
-| GET    | `/api/tasks`                  | List tasks (filters: `status`, `department`, `priority`, `assignee`, `q`) |
-| GET    | `/api/tasks/{id}`             | Single task                         |
-| POST   | `/api/tasks`                  | Create task (auto-generates `TASK-####` code) |
-| PUT    | `/api/tasks/{id}`             | Update task / change status         |
-| DELETE | `/api/tasks/{id}`             | Delete task                         |
-| GET    | `/api/tasks/{id}/comments`    | Task comments                       |
-| POST   | `/api/tasks/{id}/comments`    | Add comment                         |
-| GET    | `/api/tasks/{id}/activity`    | Activity log                        |
-| GET    | `/api/departments`            | Department list                     |
-| GET    | `/api/users`                  | User list                           |
-| GET    | `/api/stats`                  | Dashboard summary stats             |
-
-CORS is configured in `app/Config/Cors.php` to allow `http://localhost:5173`.
-
----
-
-## 3. Frontend (React)
-
+### 3. Frontend Setup (React)
+Navigate to the `frontend` directory:
 ```bash
 cd frontend
-npm install      # first time only
+npm install
 npm run dev
 ```
-
-App: **http://localhost:5173**
-
-The API URL is set in `frontend/.env` (`VITE_API_BASE`). If the backend is unreachable,
-the UI falls back to bundled sample data and shows a "backend offline" note, so the design
-always renders.
-
-### Features
-- Dashboard with live stat cards (urgent/overdue, pending, in progress, closed today, avg close time)
-- Task list grouped by priority, with status pills, due-date colouring and age
-- Filters (status tabs, department, priority, assignee) + global search
-- Sidebar navigation (All / My / Overdue / by department)
-- Task detail panel: description, metadata, activity timeline, add comment, complete/reject
-- Create Task modal
-- **TV Display mode** — full-screen live board with clock and scrolling ticker
+*The React application will be available at: **http://localhost:5173***
 
 ---
 
-## Build for production
+## 👤 Default Seeded Accounts
 
-```bash
-cd frontend
-npm run build    # outputs to frontend/dist
-```
+| Role | Email | Password | Landing Page |
+|------|-------|----------|--------------|
+| **Platform Super Admin** | `dipakbarman080@gmail.com` | `Admin@12345` | Platform Console |
+| **Company Admin** | `admin@ajaychemicals.com` | `Company@123` | Task Dashboard |
+
+*(Please ensure to change these credentials after your first login in a production environment)*
+
+---
+*Designed & Developed with ❤️ focusing on scalable architecture and premium UI/UX.*
