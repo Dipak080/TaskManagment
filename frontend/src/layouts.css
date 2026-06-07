@@ -1,0 +1,159 @@
+/* Layout Selection Cards UI */
+.layout-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 16px;
+}
+.layout-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--navy2);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+.layout-card:hover {
+  border-color: var(--border2);
+}
+.layout-card.active {
+  border: 2px solid var(--green);
+}
+.layout-mockup {
+  height: 160px;
+  background: var(--navy3);
+  border-radius: 8px 8px 0 0;
+  padding: 12px;
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.mockup-app {
+  flex: 1;
+  background: var(--navy);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  display: flex;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.mockup-sidebar {
+  width: 25%;
+  background: var(--navy2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  gap: 4px;
+}
+.mockup-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.mockup-topbar {
+  height: 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 8px;
+}
+.mockup-content {
+  flex: 1;
+  padding: 8px;
+  display: flex;
+  gap: 8px;
+}
+.mockup-panel {
+  flex: 1;
+  background: var(--navy2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.mockup-item {
+  height: 6px;
+  background: var(--navy4);
+  border-radius: 3px;
+  margin: 0 8px;
+}
+.mockup-item.brand {
+  height: 8px;
+  background: var(--green);
+  width: 60%;
+}
+.layout-meta {
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.layout-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.layout-desc {
+  font-size: 11px;
+  color: var(--text2);
+  margin-top: 2px;
+}
+.layout-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--green);
+  color: white;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+/* Sidebar Specific Layout Modes (Desktop Only) */
+@media (min-width: 769px) {
+  /* ICON LAYOUT */
+  .app.layout-icon { grid-template-columns: 64px 1fr; }
+  .app.layout-icon .brand { width: 64px; justify-content: center; padding: 0; }
+  .app.layout-icon .brand-text-wrap { display: none; }
+  .app.layout-icon .nav-item { justify-content: center; padding: 12px 0; }
+  .app.layout-icon .nav-item span { display: none; } /* Hide text */
+  .app.layout-icon .nav-section { display: none; }
+  .app.layout-icon .user-info { display: none; }
+  .app.layout-icon .status-dot { display: none; }
+  .app.layout-icon .user-card { justify-content: center; }
+  .app.layout-icon .nav-badge { display: none; }
+
+  /* SLIM LAYOUT */
+  .app.layout-slim { grid-template-columns: 48px 1fr; }
+  .app.layout-slim .brand { width: 48px; justify-content: center; padding: 0; }
+  .app.layout-slim .brand-icon { width: 24px; height: 24px; border-radius: 4px; }
+  .app.layout-slim .brand-icon svg { width: 14px; height: 14px; }
+  .app.layout-slim .brand-text-wrap { display: none; }
+  .app.layout-slim .nav-item { justify-content: center; padding: 10px 0; }
+  .app.layout-slim .nav-item svg { width: 14px; height: 14px; }
+  .app.layout-slim .nav-item span { display: none; }
+  .app.layout-slim .nav-section { display: none; }
+  .app.layout-slim .user-info { display: none; }
+  .app.layout-slim .status-dot { display: none; }
+  .app.layout-slim .user-card { justify-content: center; }
+  .app.layout-slim .avatar { width: 24px; height: 24px; font-size: 9px; }
+  .app.layout-slim .nav-badge { display: none; }
+
+  /* LIGHT SIDEBAR LAYOUT */
+  .app.layout-light-sidebar .sidebar {
+    background: #FFFFFF;
+    border-right: 1px solid rgba(0,0,0,0.1);
+  }
+  .app.layout-light-sidebar .brand {
+    background: #FFFFFF;
+  }
+  .app.layout-light-sidebar .brand-name { color: #0F172A; }
+  .app.layout-light-sidebar .nav-item { color: #475569; }
+  .app.layout-light-sidebar .nav-item:hover { background: #F1F5F9; color: #0F172A; }
+  .app.layout-light-sidebar .nav-item.active { background: #E2E8F0; color: #0F172A; }
+  .app.layout-light-sidebar .nav-item.active::before { background: var(--green); }
+  .app.layout-light-sidebar .nav-section { color: #94A3B8; }
+  .app.layout-light-sidebar .user-name { color: #0F172A; }
+  .app.layout-light-sidebar .sidebar-bottom { border-top: 1px solid rgba(0,0,0,0.1); }
+}

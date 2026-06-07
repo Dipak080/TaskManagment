@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaskOps — Ajay Chemicals</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0B1628;
+  --navy2: #0F1E35;
+  --navy3: #162540;
+  --navy4: #1E3050;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --amber: #F59E0B;
+  --amber2: #FCD34D;
+  --amber-dim: rgba(245,158,11,0.15);
+  --red: #EF4444;
+  --red-dim: rgba(239,68,68,0.12);
+  --green: #10B981;
+  --green-dim: rgba(16,185,129,0.12);
+  --blue: #3B82F6;
+  --blue-dim: rgba(59,130,246,0.12);
+  --muted: #64748B;
+  --text: #E2E8F0;
+  --text2: #94A3B8;
+  --font: 'Sora', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; background:var(--navy); color:var(--text); font-family:var(--font); font-size:13px; overflow:hidden; }
+
+/* ── Layout ── */
+.app { display:grid; grid-template-columns:220px 1fr; grid-template-rows:52px 1fr; height:100vh; }
+
+/* ── Topbar ── */
+.topbar {
+  grid-column:1/-1;
+  background:var(--navy2);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:0;
+  padding:0 16px;
+}
+.brand {
+  display:flex; align-items:center; gap:10px;
+  width:220px; padding-right:16px;
+  border-right:1px solid var(--border);
+}
+.brand-icon {
+  width:28px; height:28px; background:var(--amber);
+  border-radius:6px; display:grid; place-items:center;
+}
+.brand-icon svg { width:16px; height:16px; fill:var(--navy); }
+.brand-name { font-size:13px; font-weight:600; letter-spacing:0.02em; }
+.brand-sub { font-size:10px; color:var(--text2); font-family:var(--mono); margin-top:1px; }
+.topbar-actions { display:flex; align-items:center; gap:8px; margin-left:auto; }
+.topbar-search {
+  display:flex; align-items:center; gap:8px;
+  background:var(--navy3); border:1px solid var(--border);
+  border-radius:6px; padding:6px 10px; margin-left:16px;
+  color:var(--text2); font-size:12px; font-family:var(--font);
+  width:220px;
+}
+.topbar-search input { background:none; border:none; outline:none; color:var(--text); font-family:var(--font); font-size:12px; flex:1; }
+.topbar-search input::placeholder { color:var(--text2); }
+.tv-btn {
+  display:flex; align-items:center; gap:6px;
+  background:var(--amber-dim); border:1px solid var(--amber);
+  color:var(--amber); font-size:11px; font-weight:500;
+  padding:5px 10px; border-radius:6px; cursor:pointer;
+  font-family:var(--font); letter-spacing:0.03em;
+  transition:background 0.15s;
+}
+.tv-btn:hover { background:rgba(245,158,11,0.25); }
+.tv-btn svg { width:14px; height:14px; }
+.avatar { width:28px; height:28px; border-radius:50%; background:var(--navy4); border:1px solid var(--border2); display:grid; place-items:center; font-size:11px; font-weight:600; color:var(--amber); cursor:pointer; }
+
+/* ── Sidebar ── */
+.sidebar {
+  background:var(--navy2); border-right:1px solid var(--border);
+  padding:16px 0; display:flex; flex-direction:column; gap:4px;
+  overflow-y:auto;
+}
+.sidebar::-webkit-scrollbar { width:3px; }
+.sidebar::-webkit-scrollbar-track { background:transparent; }
+.sidebar::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px; }
+.nav-section { padding:8px 16px 4px; font-size:10px; font-weight:500; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase; font-family:var(--mono); }
+.nav-item {
+  display:flex; align-items:center; gap:9px;
+  padding:7px 16px; cursor:pointer; border-radius:0;
+  transition:background 0.1s; position:relative;
+  font-size:12.5px; color:var(--text2);
+}
+.nav-item:hover { background:var(--navy3); color:var(--text); }
+.nav-item.active { background:var(--navy3); color:var(--amber); }
+.nav-item.active::before { content:''; position:absolute; left:0; top:4px; bottom:4px; width:2px; background:var(--amber); border-radius:0 2px 2px 0; }
+.nav-item svg { width:15px; height:15px; flex-shrink:0; opacity:0.7; }
+.nav-item.active svg { opacity:1; }
+.nav-badge { margin-left:auto; background:var(--red); color:#fff; font-size:10px; font-weight:600; padding:1px 6px; border-radius:10px; font-family:var(--mono); }
+.nav-badge.amber { background:var(--amber-dim); color:var(--amber); border:1px solid rgba(245,158,11,0.3); }
+.sidebar-bottom { margin-top:auto; padding:12px 16px; border-top:1px solid var(--border); }
+.user-card { display:flex; align-items:center; gap:9px; }
+.user-info { flex:1; min-width:0; }
+.user-name { font-size:12px; font-weight:500; }
+.user-role { font-size:10px; color:var(--text2); font-family:var(--mono); }
+.status-dot { width:7px; height:7px; border-radius:50%; background:var(--green); flex-shrink:0; }
+
+/* ── Main content ── */
+.main { overflow-y:auto; display:flex; flex-direction:column; }
+.main::-webkit-scrollbar { width:4px; }
+.main::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px; }
+
+/* ── Page header ── */
+.page-header {
+  padding:16px 20px 0;
+  display:flex; align-items:flex-start; justify-content:space-between;
+  flex-shrink:0;
+}
+.page-title { font-size:17px; font-weight:600; }
+.page-sub { font-size:11px; color:var(--text2); margin-top:2px; font-family:var(--mono); }
+.header-actions { display:flex; gap:8px; align-items:center; }
+.btn {
+  display:flex; align-items:center; gap:6px;
+  padding:7px 12px; border-radius:6px; cursor:pointer;
+  font-family:var(--font); font-size:12px; font-weight:500;
+  border:none; transition:all 0.15s;
+}
+.btn-primary { background:var(--amber); color:var(--navy); }
+.btn-primary:hover { background:var(--amber2); }
+.btn-ghost { background:transparent; color:var(--text2); border:1px solid var(--border2); }
+.btn-ghost:hover { background:var(--navy3); color:var(--text); }
+.btn svg { width:13px; height:13px; }
+
+/* ── Stats strip ── */
+.stats { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; padding:14px 20px; flex-shrink:0; }
+.stat-card {
+  background:var(--navy2); border:1px solid var(--border);
+  border-radius:8px; padding:12px 14px;
+  display:flex; flex-direction:column; gap:4px;
+  transition:border-color 0.15s;
+}
+.stat-card:hover { border-color:var(--border2); }
+.stat-label { font-size:10px; color:var(--text2); font-family:var(--mono); text-transform:uppercase; letter-spacing:0.05em; }
+.stat-value { font-size:22px; font-weight:600; font-family:var(--mono); line-height:1; }
+.stat-sub { font-size:10px; color:var(--text2); margin-top:2px; }
+.stat-card.urgent { border-color:rgba(239,68,68,0.3); }
+.stat-card.urgent .stat-value { color:var(--red); }
+.stat-card.pending .stat-value { color:var(--amber); }
+.stat-card.progress .stat-value { color:var(--blue); }
+.stat-card.done .stat-value { color:var(--green); }
+
+/* ── Filters ── */
+.filters {
+  display:flex; gap:8px; align-items:center;
+  padding:0 20px 12px; flex-shrink:0;
+  border-bottom:1px solid var(--border);
+}
+.filter-tabs { display:flex; gap:2px; background:var(--navy2); border:1px solid var(--border); border-radius:7px; padding:3px; }
+.filter-tab {
+  padding:4px 12px; border-radius:5px; cursor:pointer;
+  font-size:11.5px; color:var(--text2); transition:all 0.15s;
+  font-weight:400;
+}
+.filter-tab.active { background:var(--navy4); color:var(--text); font-weight:500; }
+.filter-select {
+  background:var(--navy2); border:1px solid var(--border); color:var(--text2);
+  border-radius:6px; padding:5px 10px; font-family:var(--font); font-size:12px;
+  cursor:pointer; outline:none;
+}
+.filter-select:focus { border-color:var(--border2); }
+.filter-sep { width:1px; height:20px; background:var(--border); margin:0 2px; }
+
+/* ── Task list ── */
+.task-area { flex:1; padding:12px 20px 20px; }
+.task-group-label {
+  font-size:10px; font-weight:500; color:var(--text2);
+  font-family:var(--mono); text-transform:uppercase; letter-spacing:0.07em;
+  padding:8px 0 6px; display:flex; align-items:center; gap:8px;
+}
+.task-group-label::after { content:''; flex:1; height:1px; background:var(--border); }
+.task-row {
+  display:grid;
+  grid-template-columns:18px 80px 1fr 90px 100px 80px 70px 36px;
+  gap:0; align-items:center;
+  background:var(--navy2); border:1px solid var(--border);
+  border-radius:7px; margin-bottom:5px;
+  padding:10px 12px;
+  cursor:pointer; transition:all 0.12s;
+  position:relative;
+}
+.task-row:hover { background:var(--navy3); border-color:var(--border2); }
+.task-row.urgent-row { border-left:3px solid var(--red); padding-left:10px; }
+.task-row.high-row { border-left:3px solid var(--amber); padding-left:10px; }
+.priority-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.p-urgent { background:var(--red); box-shadow:0 0 6px rgba(239,68,68,0.6); }
+.p-high { background:var(--amber); }
+.p-medium { background:var(--blue); }
+.p-low { background:var(--muted); }
+.task-id { font-family:var(--mono); font-size:10px; color:var(--text2); }
+.task-title-cell { display:flex; flex-direction:column; gap:2px; min-width:0; }
+.task-title { font-size:12.5px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.task-dept { font-size:10px; color:var(--text2); font-family:var(--mono); }
+.task-assignee { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text2); }
+.assignee-av { width:20px; height:20px; border-radius:50%; background:var(--navy4); border:1px solid var(--border2); display:grid; place-items:center; font-size:9px; font-weight:600; color:var(--amber); flex-shrink:0; }
+.task-due { font-family:var(--mono); font-size:11px; }
+.due-overdue { color:var(--red); }
+.due-today { color:var(--amber); }
+.due-normal { color:var(--text2); }
+.status-pill {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 8px; border-radius:20px; font-size:10px; font-weight:500;
+  font-family:var(--mono); white-space:nowrap;
+}
+.s-pending { background:var(--amber-dim); color:var(--amber); border:1px solid rgba(245,158,11,0.2); }
+.s-progress { background:var(--blue-dim); color:var(--blue); border:1px solid rgba(59,130,246,0.2); }
+.s-done { background:var(--green-dim); color:var(--green); border:1px solid rgba(16,185,129,0.2); }
+.s-rejected { background:var(--red-dim); color:var(--red); border:1px solid rgba(239,68,68,0.2); }
+.task-age { font-family:var(--mono); font-size:11px; color:var(--text2); text-align:right; }
+.task-age.aging { color:var(--amber); }
+.task-age.critical { color:var(--red); }
+.task-menu { width:28px; height:28px; border-radius:5px; display:grid; place-items:center; cursor:pointer; color:var(--text2); transition:all 0.12s; margin-left:auto; }
+.task-menu:hover { background:var(--navy4); color:var(--text); }
+
+/* ── Empty + header row ── */
+.list-header {
+  display:grid;
+  grid-template-columns:18px 80px 1fr 90px 100px 80px 70px 36px;
+  gap:0; padding:6px 12px;
+  font-size:10px; font-family:var(--mono); color:var(--muted);
+  text-transform:uppercase; letter-spacing:0.05em;
+}
+
+/* ── Detail panel ── */
+.detail-panel {
+  position:fixed; right:-420px; top:52px; bottom:0; width:400px;
+  background:var(--navy2); border-left:1px solid var(--border);
+  display:flex; flex-direction:column;
+  transition:right 0.25s cubic-bezier(0.4,0,0.2,1);
+  z-index:100;
+}
+.detail-panel.open { right:0; }
+.detail-header { padding:16px; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+.detail-title { font-size:14px; font-weight:600; line-height:1.4; }
+.detail-id { font-family:var(--mono); font-size:10px; color:var(--text2); margin-top:3px; }
+.close-btn { width:26px; height:26px; border-radius:5px; border:none; background:var(--navy3); color:var(--text2); cursor:pointer; display:grid; place-items:center; flex-shrink:0; font-size:14px; transition:all 0.1s; }
+.close-btn:hover { background:var(--navy4); color:var(--text); }
+.detail-body { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:16px; }
+.detail-body::-webkit-scrollbar { width:3px; }
+.detail-body::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px; }
+.detail-section label { font-size:10px; font-family:var(--mono); color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:6px; }
+.detail-section p { font-size:12.5px; color:var(--text); line-height:1.6; }
+.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.detail-field label { font-size:10px; font-family:var(--mono); color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:4px; }
+.detail-field span { font-size:12px; }
+.timeline { display:flex; flex-direction:column; gap:0; }
+.tl-item { display:flex; gap:10px; position:relative; }
+.tl-item::before { content:''; position:absolute; left:9px; top:20px; bottom:0; width:1px; background:var(--border); }
+.tl-item:last-child::before { display:none; }
+.tl-dot { width:20px; height:20px; border-radius:50%; background:var(--navy3); border:1px solid var(--border2); display:grid; place-items:center; flex-shrink:0; margin-top:2px; }
+.tl-dot svg { width:9px; height:9px; }
+.tl-content { flex:1; padding-bottom:12px; }
+.tl-action { font-size:12px; font-weight:500; }
+.tl-meta { font-size:10px; color:var(--text2); font-family:var(--mono); margin-top:2px; }
+.comment-box { background:var(--navy3); border:1px solid var(--border); border-radius:7px; padding:10px; display:flex; flex-direction:column; gap:8px; }
+.comment-box textarea { background:none; border:none; outline:none; color:var(--text); font-family:var(--font); font-size:12px; resize:none; min-height:60px; line-height:1.5; }
+.comment-box textarea::placeholder { color:var(--muted); }
+.comment-actions { display:flex; justify-content:flex-end; gap:6px; }
+.detail-footer { padding:12px 16px; border-top:1px solid var(--border); display:flex; gap:8px; }
+.btn-danger { background:var(--red-dim); color:var(--red); border:1px solid rgba(239,68,68,0.2); }
+.btn-success { background:var(--green-dim); color:var(--green); border:1px solid rgba(16,185,129,0.2); }
+
+/* ── TV Mode overlay ── */
+.tv-overlay {
+  display:none; position:fixed; inset:0; background:var(--navy);
+  z-index:200; flex-direction:column;
+  font-family:var(--mono);
+}
+.tv-overlay.show { display:flex; }
+.tv-topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 32px; border-bottom:2px solid var(--amber);
+}
+.tv-brand { font-size:18px; font-weight:600; font-family:var(--font); color:var(--amber); letter-spacing:0.05em; }
+.tv-clock { font-size:28px; font-weight:400; color:var(--amber); }
+.tv-date { font-size:12px; color:var(--text2); margin-top:2px; text-align:right; }
+.tv-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; padding:16px 32px; }
+.tv-stat { background:var(--navy2); border:1px solid var(--border); border-radius:10px; padding:14px 20px; text-align:center; }
+.tv-stat-val { font-size:42px; font-weight:400; line-height:1; }
+.tv-stat-lbl { font-size:11px; color:var(--text2); letter-spacing:0.08em; text-transform:uppercase; margin-top:4px; }
+.tv-stat.urgent-stat .tv-stat-val { color:var(--red); }
+.tv-stat.pending-stat .tv-stat-val { color:var(--amber); }
+.tv-stat.progress-stat .tv-stat-val { color:var(--blue); }
+.tv-stat.done-stat .tv-stat-val { color:var(--green); }
+.tv-list { flex:1; overflow:hidden; padding:0 32px 20px; display:flex; flex-direction:column; }
+.tv-list-header {
+  display:grid; grid-template-columns:60px 1fr 120px 140px 100px 120px;
+  gap:0; padding:8px 16px;
+  font-size:10px; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase;
+}
+.tv-rows { flex:1; overflow:hidden; display:flex; flex-direction:column; gap:6px; }
+.tv-row {
+  display:grid; grid-template-columns:60px 1fr 120px 140px 100px 120px;
+  gap:0; align-items:center;
+  background:var(--navy2); border:1px solid var(--border);
+  border-radius:8px; padding:12px 16px;
+  animation:tvRowIn 0.4s ease both;
+}
+@keyframes tvRowIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+.tv-row.tv-urgent { border-left:4px solid var(--red); background:rgba(239,68,68,0.04); }
+.tv-row.tv-overdue { border-left:4px solid var(--amber); }
+.tv-id { font-size:11px; color:var(--text2); }
+.tv-title { font-size:14px; font-weight:400; font-family:var(--font); }
+.tv-dept { font-size:11px; color:var(--text2); }
+.tv-assignee { font-size:12px; }
+.tv-age { font-size:16px; font-weight:400; }
+.tv-age.red { color:var(--red); }
+.tv-age.amber { color:var(--amber); }
+.tv-exit { position:absolute; top:16px; right:32px; background:var(--navy3); border:1px solid var(--border); color:var(--text2); padding:6px 14px; border-radius:6px; cursor:pointer; font-family:var(--font); font-size:12px; z-index:201; }
+.tv-ticker { border-top:1px solid var(--border); padding:8px 32px; display:flex; align-items:center; gap:16px; }
+.ticker-label { font-size:10px; color:var(--amber); text-transform:uppercase; letter-spacing:0.08em; flex-shrink:0; }
+.ticker-scroll { flex:1; overflow:hidden; }
+.ticker-inner { white-space:nowrap; display:inline-block; animation:ticker 25s linear infinite; font-size:11px; color:var(--text2); }
+@keyframes ticker { from { transform:translateX(100%); } to { transform:translateX(-100%); } }
+
+/* ── Create Task Modal ── */
+.modal-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:150; align-items:center; justify-content:center; }
+.modal-backdrop.show { display:flex; }
+.modal { background:var(--navy2); border:1px solid var(--border2); border-radius:12px; width:480px; max-height:80vh; overflow-y:auto; }
+.modal::-webkit-scrollbar { width:3px; }
+.modal::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px; }
+.modal-header { padding:18px 20px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.modal-title { font-size:14px; font-weight:600; }
+.modal-body { padding:18px 20px; display:flex; flex-direction:column; gap:14px; }
+.form-group { display:flex; flex-direction:column; gap:5px; }
+.form-group label { font-size:10px; font-family:var(--mono); color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
+.form-input, .form-select, .form-textarea {
+  background:var(--navy3); border:1px solid var(--border);
+  border-radius:6px; padding:8px 11px;
+  color:var(--text); font-family:var(--font); font-size:12.5px;
+  outline:none; transition:border-color 0.15s;
+  width:100%;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--amber); }
+.form-input::placeholder, .form-textarea::placeholder { color:var(--muted); }
+.form-textarea { resize:vertical; min-height:80px; line-height:1.5; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.modal-footer { padding:14px 20px 18px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px; }
+
+/* ── Scrollbar global ── */
+::-webkit-scrollbar { width:4px; height:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 16 16"><path d="M2 3h12v2H2zm0 4h8v2H2zm0 4h10v2H2z"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">TaskOps</div>
+        <div class="brand-sub">AJAY CHEMICALS</div>
+      </div>
+    </div>
+    <div class="topbar-search">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="Search tasks...">
+      <span style="font-size:10px;font-family:var(--mono);color:var(--muted);background:var(--navy4);padding:1px 5px;border-radius:3px;">⌘K</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="tv-btn" onclick="openTV()">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        TV Display
+      </button>
+      <div class="avatar">JS</div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="nav-section">Main</div>
+    <div class="nav-item active">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="m9 12 2 2 4-4"/></svg>
+      All Tasks
+      <span class="nav-badge">14</span>
+    </div>
+    <div class="nav-item">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      My Tasks
+      <span class="nav-badge amber">6</span>
+    </div>
+    <div class="nav-item">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Overdue
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-section" style="margin-top:8px">Departments</div>
+    <div class="nav-item">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 9h18M9 3v18M3 15h18"/></svg>
+      Accounts
+    </div>
+    <div class="nav-item">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
+      Purchase
+    </div>
+    <div class="nav-item">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/><rect x="9" y="11" width="14" height="10" rx="2"/><circle cx="12" cy="16" r="1"/></svg>
+      Logistics
+    </div>
+    <div class="nav-item">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M2 20h20M4 20V10l8-6 8 6v10"/><path d="M10 20v-5h4v5"/></svg>
+      Production
+    </div>
+    <div class="nav-item">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 3h18v18H3z"/><path d="M7 7h4v4H7zM13 7h4v4h-4zM7 13h4v4H7zM13 13h4v4h-4z" fill="currentColor" stroke="none" opacity=".3"/></svg>
+      Planning
+    </div>
+    <div class="nav-item">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="5" r="3"/><path d="M12 8v13M5 3l7 5 7-5"/></svg>
+      Marketing
+    </div>
+    <div class="sidebar-bottom">
+      <div class="user-card">
+        <div class="avatar" style="width:32px;height:32px;font-size:12px">JS</div>
+        <div class="user-info">
+          <div class="user-name">Jebastin S.</div>
+          <div class="user-role">ADMIN / OWNER</div>
+        </div>
+        <div class="status-dot"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Task Dashboard</div>
+        <div class="page-sub">Thursday, 29 May 2026 · 14 open tasks</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="openTV()">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          TV Mode
+        </button>
+        <button class="btn btn-primary" onclick="document.querySelector('.modal-backdrop').classList.add('show')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          New Task
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card urgent">
+        <div class="stat-label">Urgent / Overdue</div>
+        <div class="stat-value">3</div>
+        <div class="stat-sub">Needs immediate action</div>
+      </div>
+      <div class="stat-card pending">
+        <div class="stat-label">Pending</div>
+        <div class="stat-value">8</div>
+        <div class="stat-sub">Awaiting action</div>
+      </div>
+      <div class="stat-card progress">
+        <div class="stat-label">In Progress</div>
+        <div class="stat-value">6</div>
+        <div class="stat-sub">Being worked on</div>
+      </div>
+      <div class="stat-card done">
+        <div class="stat-label">Closed Today</div>
+        <div class="stat-value">5</div>
+        <div class="stat-sub">Out of 18 total</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Close Time</div>
+        <div class="stat-value" style="color:var(--text)">1.8d</div>
+        <div class="stat-sub">Last 7 days</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <div class="filter-tabs">
+        <div class="filter-tab active">All</div>
+        <div class="filter-tab">Pending</div>
+        <div class="filter-tab">In Progress</div>
+        <div class="filter-tab">Completed</div>
+      </div>
+      <div class="filter-sep"></div>
+      <select class="filter-select">
+        <option>All Departments</option>
+        <option>Accounts</option>
+        <option>Purchase</option>
+        <option>Logistics</option>
+        <option>Production</option>
+        <option>Planning</option>
+        <option>Marketing</option>
+      </select>
+      <select class="filter-select">
+        <option>All Priority</option>
+        <option>Urgent</option>
+        <option>High</option>
+        <option>Medium</option>
+        <option>Low</option>
+      </select>
+      <select class="filter-select">
+        <option>All Assignees</option>
+        <option>Rajan K.</option>
+        <option>Meena S.</option>
+        <option>Ajay V.</option>
+      </select>
+    </div>
+
+    <!-- Task list -->
+    <div class="task-area">
+      <div class="list-header">
+        <div></div>
+        <div>Task ID</div>
+        <div>Title / Department</div>
+        <div>Assigned To</div>
+        <div>Due Date</div>
+        <div>Status</div>
+        <div>Age</div>
+        <div></div>
+      </div>
+
+      <div class="task-group-label">🔴 Urgent — Overdue</div>
+
+      <!-- Urgent tasks -->
+      <div class="task-row urgent-row" onclick="openDetail('GST Notice Reply','TASK-0031','Accounts','Rajan K.','RK','28 May 2026','3d overdue','pending','GST department has issued a notice regarding TDS mismatch for Q4 FY2025. Response must be filed with supporting documents.')">
+        <div class="priority-dot p-urgent"></div>
+        <div class="task-id">TASK-0031</div>
+        <div class="task-title-cell">
+          <div class="task-title">GST Notice Reply — TDS Q4 FY2025</div>
+          <div class="task-dept">ACCOUNTS · created by Admin</div>
+        </div>
+        <div class="task-assignee"><div class="assignee-av">RK</div> Rajan K.</div>
+        <div class="task-due due-overdue">28 May 2026</div>
+        <div><span class="status-pill s-pending">● Pending</span></div>
+        <div class="task-age critical">3d overdue</div>
+        <div class="task-menu">⋯</div>
+      </div>
+
+      <div class="task-row urgent-row" onclick="openDetail('Electricity Bill Payment','TASK-0028','Administration','Meena S.','MS','27 May 2026','4d overdue','pending','Electricity bill for Plant 2 is due. Non-payment will result in disconnection within 48 hours.')">
+        <div class="priority-dot p-urgent"></div>
+        <div class="task-id">TASK-0028</div>
+        <div class="task-title-cell">
+          <div class="task-title">Electricity Bill Payment — Plant 2</div>
+          <div class="task-dept">ADMINISTRATION · created by Admin</div>
+        </div>
+        <div class="task-assignee"><div class="assignee-av">MS</div> Meena S.</div>
+        <div class="task-due due-overdue">27 May 2026</div>
+        <div><span class="status-pill s-pending">● Pending</span></div>
+        <div class="task-age critical">4d overdue</div>
+        <div class="task-menu">⋯</div>
+      </div>
+
+      <div class="task-group-label" style="margin-top:8px">🟡 High Priority</div>
+
+      <div class="task-row high-row" onclick="openDetail('Raw Material Stock Report','TASK-0034','Planning','Ajay V.','AV','30 May 2026','Today','in_progress','Technical Head requires updated stock levels before dispatch planning for Bokaro Steel Plant order.')">
+        <div class="priority-dot p-high"></div>
+        <div class="task-id">TASK-0034</div>
+        <div class="task-title-cell">
+          <div class="task-title">Raw Material Stock Report — Bokaro Order</div>
+          <div class="task-dept">PLANNING · created by Technical Head</div>
+        </div>
+        <div class="task-assignee"><div class="assignee-av">AV</div> Ajay V.</div>
+        <div class="task-due due-today">30 May 2026</div>
+        <div><span class="status-pill s-progress">▶ In Progress</span></div>
+        <div class="task-age aging">0d</div>
+        <div class="task-menu">⋯</div>
+      </div>
+
+      <div class="task-row high-row" onclick="openDetail('Machinery Purchase Approval','TASK-0033','Purchase','Priya N.','PN','31 May 2026','1d','pending','Mechanical Head has approved the requisition for 2x hydraulic press maintenance parts. Purchase order to be raised.')">
+        <div class="priority-dot p-high"></div>
+        <div class="task-id">TASK-0033</div>
+        <div class="task-title-cell">
+          <div class="task-title">Machinery Purchase Approval — Hydraulic Press</div>
+          <div class="task-dept">PURCHASE · created by Mech. Head</div>
+        </div>
+        <div class="task-assignee"><div class="assignee-av">PN</div> Priya N.</div>
+        <div class="task-due due-normal">31 May 2026</div>
+        <div><span class="status-pill s-pending">● Pending</span></div>
+        <div class="task-age">1d</div>
+        <div class="task-menu">⋯</div>
+      </div>
+
+      <div class="task-group-label" style="margin-top:8px">⬜ Normal</div>
+
+      <div class="task-row" onclick="openDetail('Lab Test Report Submission','TASK-0036','Lab / Production','Suresh L.','SL','2 Jun 2026','0d','in_progress','Daily raw material test results for incoming batch #BK-2209 from Bokaro. Lab to submit results to Purchase and Planning.')">
+        <div class="priority-dot p-medium"></div>
+        <div class="task-id">TASK-0036</div>
+        <div class="task-title-cell">
+          <div class="task-title">Lab Test Report — Batch #BK-2209</div>
+          <div class="task-dept">LAB / PRODUCTION · created by Lab Head</div>
+        </div>
+        <div class="task-assignee"><div class="assignee-av">SL</div> Suresh L.</div>
+        <div class="task-due due-normal">2 Jun 2026</div>
+        <div><span class="status-pill s-progress">▶ In Progress</span></div>
+        <div class="task-age">0d</div>
+        <div class="task-menu">⋯</div>
+      </div>
+
+      <div class="task-row" onclick="openDetail('Dispatch Vehicle Booking','TASK-0035','Logistics','Dilip R.','DR','1 Jun 2026','0d','pending','Planning has confirmed dispatch date for Bokaro Steel Plant. Logistics to arrange vehicle for 3 Jun dispatch.')">
+        <div class="priority-dot p-medium"></div>
+        <div class="task-id">TASK-0035</div>
+        <div class="task-title-cell">
+          <div class="task-title">Dispatch Vehicle Booking — Bokaro Steel</div>
+          <div class="task-dept">LOGISTICS · created by Planning</div>
+        </div>
+        <div class="task-assignee"><div class="assignee-av">DR</div> Dilip R.</div>
+        <div class="task-due due-normal">1 Jun 2026</div>
+        <div><span class="status-pill s-pending">● Pending</span></div>
+        <div class="task-age">0d</div>
+        <div class="task-menu">⋯</div>
+      </div>
+
+      <div class="task-row" onclick="openDetail('Sales Tender Submission','TASK-0030','Sales','Ravi M.','RM','5 Jun 2026','2d','in_progress','Online tender portal deadline. Documents to be prepared and submitted by Purchase team representative.')">
+        <div class="priority-dot p-low"></div>
+        <div class="task-id">TASK-0030</div>
+        <div class="task-title-cell">
+          <div class="task-title">Online Tender Submission — NHB Portal</div>
+          <div class="task-dept">SALES · created by Admin</div>
+        </div>
+        <div class="task-assignee"><div class="assignee-av">RM</div> Ravi M.</div>
+        <div class="task-due due-normal">5 Jun 2026</div>
+        <div><span class="status-pill s-progress">▶ In Progress</span></div>
+        <div class="task-age">2d</div>
+        <div class="task-menu">⋯</div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <div>
+      <div class="detail-title" id="dpTitle">Task Title</div>
+      <div class="detail-id" id="dpId">TASK-0000</div>
+    </div>
+    <button class="close-btn" onclick="closeDetail()">✕</button>
+  </div>
+  <div class="detail-body">
+    <div class="detail-section">
+      <label>Description</label>
+      <p id="dpDesc">—</p>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-field"><label>Department</label><span id="dpDept">—</span></div>
+      <div class="detail-field"><label>Assigned To</label><span id="dpAssignee">—</span></div>
+      <div class="detail-field"><label>Due Date</label><span id="dpDue">—</span></div>
+      <div class="detail-field"><label>Age</label><span id="dpAge">—</span></div>
+      <div class="detail-field"><label>Status</label><span id="dpStatus">—</span></div>
+      <div class="detail-field"><label>Priority</label><span>High</span></div>
+    </div>
+    <div class="detail-section">
+      <label>Activity Log</label>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot" style="background:var(--amber-dim);border-color:var(--amber)">
+            <svg fill="none" stroke="var(--amber)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <div class="tl-content">
+            <div class="tl-action">Task created &amp; assigned</div>
+            <div class="tl-meta">Admin · 29 May 2026, 09:14</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot">
+            <svg fill="none" stroke="var(--text2)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="tl-content">
+            <div class="tl-action">Status changed to In Progress</div>
+            <div class="tl-meta">Assignee · 29 May 2026, 11:30</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot">
+            <svg fill="none" stroke="var(--text2)" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="tl-content">
+            <div class="tl-action">Comment added</div>
+            <div class="tl-meta">Assignee · 29 May 2026, 14:05</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <label>Add Comment</label>
+      <div class="comment-box">
+        <textarea placeholder="Write an update or note…"></textarea>
+        <div class="comment-actions">
+          <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px">Cancel</button>
+          <button class="btn btn-primary" style="padding:5px 10px;font-size:11px">Post</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="detail-footer">
+    <button class="btn btn-danger" style="flex:1">✕ Reject Task</button>
+    <button class="btn btn-success" style="flex:1">✓ Mark Complete</button>
+  </div>
+</div>
+
+<!-- CREATE TASK MODAL -->
+<div class="modal-backdrop" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Create New Task</div>
+      <button class="close-btn" onclick="document.querySelector('.modal-backdrop').classList.remove('show')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Task Title *</label>
+        <input type="text" class="form-input" placeholder="Brief, clear description of what needs to be done">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea class="form-textarea" placeholder="Additional details, context, or instructions…"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Department *</label>
+          <select class="form-select">
+            <option value="">Select department</option>
+            <option>Accounts</option>
+            <option>Purchase</option>
+            <option>Logistics</option>
+            <option>Production</option>
+            <option>Planning</option>
+            <option>Sales</option>
+            <option>Marketing</option>
+            <option>Lab</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Assign To *</label>
+          <select class="form-select">
+            <option value="">Select person</option>
+            <option>Rajan K. (Accounts)</option>
+            <option>Meena S. (Admin)</option>
+            <option>Ajay V. (Planning)</option>
+            <option>Priya N. (Purchase)</option>
+            <option>Dilip R. (Logistics)</option>
+            <option>Suresh L. (Lab)</option>
+            <option>Ravi M. (Sales)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Priority *</label>
+          <select class="form-select">
+            <option>Low</option>
+            <option selected>Medium</option>
+            <option>High</option>
+            <option>Urgent</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Due Date *</label>
+          <input type="date" class="form-input" value="2026-06-05">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Verifier (optional)</label>
+        <select class="form-select">
+          <option value="">Select verifier</option>
+          <option>Admin / Owner</option>
+          <option>Accounts Head</option>
+          <option>Technical Head</option>
+          <option>Mechanical Head</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.querySelector('.modal-backdrop').classList.remove('show')">Cancel</button>
+      <button class="btn btn-primary">Create Task →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TV MODE OVERLAY -->
+<div class="tv-overlay" id="tvOverlay">
+  <button class="tv-exit" onclick="closeTV()">✕ Exit TV Mode</button>
+  <div class="tv-topbar">
+    <div>
+      <div class="tv-brand">TASKOPS — AJAY CHEMICALS</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:3px;letter-spacing:0.06em;">LIVE TASK BOARD · PENDING ITEMS</div>
+    </div>
+    <div>
+      <div class="tv-clock" id="tvClock">--:--:--</div>
+      <div class="tv-date" id="tvDate">--</div>
+    </div>
+  </div>
+  <div class="tv-stats">
+    <div class="tv-stat urgent-stat"><div class="tv-stat-val">3</div><div class="tv-stat-lbl">Urgent / Overdue</div></div>
+    <div class="tv-stat pending-stat"><div class="tv-stat-val">8</div><div class="tv-stat-lbl">Pending</div></div>
+    <div class="tv-stat progress-stat"><div class="tv-stat-val">6</div><div class="tv-stat-lbl">In Progress</div></div>
+    <div class="tv-stat done-stat"><div class="tv-stat-val">5</div><div class="tv-stat-lbl">Closed Today</div></div>
+  </div>
+  <div class="tv-list">
+    <div class="tv-list-header">
+      <div>ID</div>
+      <div>Task</div>
+      <div>Department</div>
+      <div>Assigned To</div>
+      <div>Age</div>
+      <div>Status</div>
+    </div>
+    <div class="tv-rows">
+      <div class="tv-row tv-urgent" style="animation-delay:0.05s">
+        <div class="tv-id">TASK-0031</div>
+        <div class="tv-title">GST Notice Reply — TDS Q4 FY2025</div>
+        <div class="tv-dept">Accounts</div>
+        <div class="tv-assignee">Rajan K.</div>
+        <div class="tv-age red">3d overdue</div>
+        <div><span class="status-pill s-pending">● Pending</span></div>
+      </div>
+      <div class="tv-row tv-urgent" style="animation-delay:0.1s">
+        <div class="tv-id">TASK-0028</div>
+        <div class="tv-title">Electricity Bill Payment — Plant 2</div>
+        <div class="tv-dept">Administration</div>
+        <div class="tv-assignee">Meena S.</div>
+        <div class="tv-age red">4d overdue</div>
+        <div><span class="status-pill s-pending">● Pending</span></div>
+      </div>
+      <div class="tv-row tv-overdue" style="animation-delay:0.15s">
+        <div class="tv-id">TASK-0034</div>
+        <div class="tv-title">Raw Material Stock Report — Bokaro Order</div>
+        <div class="tv-dept">Planning</div>
+        <div class="tv-assignee">Ajay V.</div>
+        <div class="tv-age amber">Due today</div>
+        <div><span class="status-pill s-progress">▶ In Progress</span></div>
+      </div>
+      <div class="tv-row" style="animation-delay:0.2s">
+        <div class="tv-id">TASK-0033</div>
+        <div class="tv-title">Machinery Purchase Approval — Hydraulic Press</div>
+        <div class="tv-dept">Purchase</div>
+        <div class="tv-assignee">Priya N.</div>
+        <div class="tv-age">1d</div>
+        <div><span class="status-pill s-pending">● Pending</span></div>
+      </div>
+      <div class="tv-row" style="animation-delay:0.25s">
+        <div class="tv-id">TASK-0036</div>
+        <div class="tv-title">Lab Test Report — Batch #BK-2209</div>
+        <div class="tv-dept">Lab / Production</div>
+        <div class="tv-assignee">Suresh L.</div>
+        <div class="tv-age">0d</div>
+        <div><span class="status-pill s-progress">▶ In Progress</span></div>
+      </div>
+      <div class="tv-row" style="animation-delay:0.3s">
+        <div class="tv-id">TASK-0035</div>
+        <div class="tv-title">Dispatch Vehicle Booking — Bokaro Steel</div>
+        <div class="tv-dept">Logistics</div>
+        <div class="tv-assignee">Dilip R.</div>
+        <div class="tv-age">0d</div>
+        <div><span class="status-pill s-pending">● Pending</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="tv-ticker">
+    <div class="ticker-label">● LIVE</div>
+    <div class="ticker-scroll">
+      <div class="ticker-inner">
+        TASK-0031 · GST Notice Reply overdue 3 days — Rajan K. (Accounts) &nbsp;·&nbsp;
+        TASK-0028 · Electricity Bill Payment overdue 4 days — Meena S. (Admin) &nbsp;·&nbsp;
+        TASK-0034 · Stock Report due today — Ajay V. (Planning) &nbsp;·&nbsp;
+        TASK-0033 · Hydraulic Press PO pending — Priya N. (Purchase) &nbsp;·&nbsp;
+        5 tasks closed today · Average close time 1.8 days &nbsp;·&nbsp;
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function openDetail(title, id, dept, assignee, initials, due, age, status, desc) {
+  document.getElementById('dpTitle').textContent = title;
+  document.getElementById('dpId').textContent = id;
+  document.getElementById('dpDept').textContent = dept;
+  document.getElementById('dpAssignee').textContent = assignee;
+  document.getElementById('dpDue').textContent = due;
+  document.getElementById('dpAge').textContent = age;
+  document.getElementById('dpDesc').textContent = desc;
+  const statusMap = { pending:'<span class="status-pill s-pending">● Pending</span>', in_progress:'<span class="status-pill s-progress">▶ In Progress</span>', completed:'<span class="status-pill s-done">✓ Completed</span>' };
+  document.getElementById('dpStatus').innerHTML = statusMap[status] || status;
+  document.getElementById('detailPanel').classList.add('open');
+}
+function closeDetail() { document.getElementById('detailPanel').classList.remove('open'); }
+
+function openTV() {
+  document.getElementById('tvOverlay').classList.add('show');
+  updateClock();
+}
+function closeTV() { document.getElementById('tvOverlay').classList.remove('show'); }
+
+function updateClock() {
+  const now = new Date();
+  document.getElementById('tvClock').textContent = now.toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('tvDate').textContent = now.toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+}
+setInterval(updateClock, 1000);
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeDetail(); closeTV(); document.querySelector('.modal-backdrop').classList.remove('show'); }
+});
+</script>
+</body>
+</html>

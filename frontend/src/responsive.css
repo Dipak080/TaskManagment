@@ -1,0 +1,91 @@
+/* Responsive Overrides */
+.mobile-menu-btn { display: none; background: none; border: none; color: var(--text); cursor: pointer; padding: 4px; margin-right: 8px; }
+.mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 199; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+.mobile-overlay.show { opacity: 1; pointer-events: auto; }
+
+@media (max-width: 1024px) {
+  /* Tablet adjustments */
+  .task-row, .list-header {
+    grid-template-columns: 18px 70px 1fr 90px 80px 36px;
+  }
+  .task-dept, .task-age { display: none; }
+  .tv-row, .tv-list-header {
+    grid-template-columns: 60px 1fr 120px 100px;
+  }
+  .tv-dept, .tv-assignee { display: none; }
+}
+
+@media (max-width: 768px) {
+  /* Mobile adjustments */
+  .mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
+  .mobile-overlay { display: block; }
+  
+  .app {
+    display: flex;
+    flex-direction: column;
+  }
+  .app.layout-top {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    position: fixed;
+    top: 0; bottom: 0; left: -260px;
+    width: 250px;
+    height: 100vh;
+    z-index: 200;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 2px 0 12px rgba(0,0,0,0.3);
+  }
+  .sidebar.mobile-open {
+    left: 0;
+  }
+  /* Force sidebar back to column layout on mobile even if layout-top is active */
+  .app.layout-top .sidebar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px 0;
+    height: 100vh;
+    border-right: 1px solid var(--border);
+  }
+  .app.layout-top .sidebar > div {
+    display: block; /* revert back to block for mobile */
+  }
+  .app.layout-top .sidebar-bottom { display: block; }
+  .app.layout-top .nav-section { display: block; }
+  .app.layout-top .nav-item { width: 100%; border-radius: 0; white-space: normal; }
+  .app.layout-top .nav-item.active::before { left:0; top:4px; bottom:4px; width:2px; height:auto; border-radius:0 2px 2px 0; }
+  
+  .brand { width: auto; border-right: none; padding-right: 8px; }
+  .brand-text-wrap { display: none; } /* Hide text, just logo on mobile */
+  .topbar-search { margin-left: auto; width: 140px; }
+  .topbar-search span { display: none; } /* Hide cmd+K hint */
+  
+  .task-row, .list-header {
+    grid-template-columns: 18px 1fr 80px 36px;
+  }
+  .task-assignee, .task-id.header-col { display: none; }
+  .task-id { display: block; margin-top: 2px; } /* Show ID under title */
+  
+  .detail-panel {
+    width: 100%;
+    right: -100%;
+  }
+  .detail-panel.open {
+    right: 0;
+  }
+  .detail-grid { grid-template-columns: 1fr; }
+  
+  .modal { width: 92%; max-width: 480px; margin: 20px; max-height: 90vh; }
+  .form-row { grid-template-columns: 1fr; }
+  
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  
+  .page-header { flex-direction: column; gap: 12px; }
+  .header-actions { width: 100%; justify-content: space-between; }
+}
+
+@media (max-width: 480px) {
+  .topbar-search { display: none; } /* Completely hide search on very small phones, or put it in a modal */
+  .stats { grid-template-columns: 1fr; }
+}
